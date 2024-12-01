@@ -10,8 +10,10 @@ rust-version = "1.78"
 [dependencies]
 anyhow = "1.0.86"
 aws-config = { version = "1.5.0", features = ["behavior-version-latest"] }
+aws-sdk-ec2 = "1.93.0"
 aws-sdk-s3 = "1.63"
 clap = { version = "4.5.18", features = ["derive"] }
+hyper = "0.14.27"
 tokio = { version = "1", features = ["full"] }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

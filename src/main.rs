@@ -1,10 +1,11 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use aws_config::load_from_env;
 use aws_sdk_s3::Client;
 use clap::{Args, Parser, Subcommand};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber;
 use tracing_subscriber::EnvFilter;
+use vmi::load_ami_to_device;
 
 const NAME: &str = "vmi";
 
@@ -22,7 +23,7 @@ pub struct App {
 #[derive(Debug, Args)]
 struct GlobalOpts {
     /// Verbosity level (can be specified multiple times)
-    #[clap(long, short, global = true, default_value_t = 0)]
+    #[clap(long, short, global = true, default_value_t = 1)]
     verbose: usize,
 }
 
@@ -64,6 +65,27 @@ enum Sink {
     // Add other variants as needed
 }
 
+#[allow(unused)]
+async fn handle_convert(
+    source: Source,
+    source_id: String,
+    sink: Sink,
+    sink_id: String,
+) -> Result<()> {
+    match (source, sink) {
+        (Source::Ami, Sink::Device) => {
+            load_ami_to_device(source_id, sink_id).await?;
+        }
+        _ => bail!("Unsupported conversion"),
+    }
+    Ok(())
+}
+
+#[allow(unused)]
+async fn handle_inspect(source: Source, source_id: String) -> Result<()> {
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = App::parse();
@@ -99,6 +121,20 @@ async fn main() -> Result<()> {
         }
     } else {
         println!("No buckets found.");
+    }
+
+    match cli.command {
+        Command::Convert {
+            source,
+            source_id,
+            sink,
+            sink_id,
+        } => {
+            handle_convert(source, source_id, sink, sink_id).await?;
+        }
+        Command::Inspect { source, source_id } => {
+            handle_inspect(source, source_id).await?;
+        }
     }
 
     Ok(())
