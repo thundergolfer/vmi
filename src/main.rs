@@ -39,12 +39,21 @@ enum Command {
         /// Sink ID (e.g. /dev/xvdg for a device).
         sink_id: String,
     },
+    /// Return information on virtual machine images
+    Inspect {
+        /// Source type of the virtual machine image (e.g. Amazon Machine Image (AMI)).
+        source: Source,
+        /// Source ID (e.g. /path/to/raw.img for a local Raw format image).
+        source_id: String,
+    },
 }
 
 #[derive(Debug, clap::ValueEnum, Clone)]
 enum Source {
     /// Amazon Machine Image (AMI)
     Ami,
+    /// Raw format image
+    Raw,
     // Add other variants as needed
 }
 
@@ -91,7 +100,6 @@ async fn main() -> Result<()> {
     } else {
         println!("No buckets found.");
     }
-
 
     Ok(())
 }
